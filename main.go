@@ -10,7 +10,7 @@ import (
 var logger = logging.GetForComponent("service")
 
 func main() {
-	srv := commonHttp.NewHttpServer(30006, testHandler)
+	srv := commonHttp.NewServer(30006, testHandler)
 
 	err := srv.Serve()
 
@@ -26,7 +26,7 @@ type testResponseType struct {
 	ServiceData  map[string]string                 `json:"serviceData"`
 }
 
-func testHandler(request *commonHttp.HttpRequest) *commonHttp.HttpResponse {
+func testHandler(request *commonHttp.Request) *commonHttp.Response {
 	if request.HttpData.Path == "/echo" {
 		return echoHandler(request)
 	} else {
@@ -34,18 +34,18 @@ func testHandler(request *commonHttp.HttpRequest) *commonHttp.HttpResponse {
 	}
 }
 
-func echoHandler(request *commonHttp.HttpRequest) *commonHttp.HttpResponse {
-	res := commonHttp.NewHttpResponse()
+func echoHandler(request *commonHttp.Request) *commonHttp.Response {
+	res := commonHttp.NewResponse()
 	res.Headers["Content-Type"] = request.HttpData.Headers["Content-Type"]
 	res.Body = request.Body
 
 	return res
 }
 
-func rootHandler(request *commonHttp.HttpRequest) *commonHttp.HttpResponse {
+func rootHandler(request *commonHttp.Request) *commonHttp.Response {
 	body := request.Body.ReadAll()
 
-	resData := testResponseType {
+	resData := testResponseType{
 		IncomingBody: body.String(),
 		HttpData:     request.HttpData,
 		KulyData:     request.KulyData,
@@ -55,12 +55,12 @@ func rootHandler(request *commonHttp.HttpRequest) *commonHttp.HttpResponse {
 	bodyJson, err := json.Marshal(resData)
 
 	if err != nil {
-		respErr := commonHttp.NewHttpResponse()
+		respErr := commonHttp.NewResponse()
 		respErr.Status = 500
 		return respErr
 	}
 
-	resp := commonHttp.NewHttpResponse()
+	resp := commonHttp.NewResponse()
 	resp.Headers["X-MyHeader"] = "I set this! :)"
 	resp.Headers["Content-Type"] = "application/json"
 	resp.Status = 200
