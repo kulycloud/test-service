@@ -21,13 +21,16 @@ func main() {
 
 type testResponseType struct {
 	IncomingBody string                            `json:"incomingBody"`
-	HttpData     *protoHttp.RequestHeader_HttpData `json:"httpData"`
+	Method       string                            `json:"method"`
+	Path         string                            `json:"path"`
+	Headers      commonHttp.Headers                `json:"headers"`
+	Source       string                            `json:"source"`
 	KulyData     *protoHttp.RequestHeader_KulyData `json:"kulyData"`
 	ServiceData  map[string]string                 `json:"serviceData"`
 }
 
 func testHandler(request *commonHttp.Request) *commonHttp.Response {
-	if request.HttpData.Path == "/echo" {
+	if request.Path == "/echo" {
 		return echoHandler(request)
 	} else {
 		return rootHandler(request)
@@ -36,7 +39,7 @@ func testHandler(request *commonHttp.Request) *commonHttp.Response {
 
 func echoHandler(request *commonHttp.Request) *commonHttp.Response {
 	res := commonHttp.NewResponse()
-	res.Headers["Content-Type"] = request.HttpData.Headers["Content-Type"]
+	res.Headers.Set("Content-Type", request.Headers.Get("Content-Type"))
 	res.Body = request.Body
 
 	return res
@@ -47,7 +50,10 @@ func rootHandler(request *commonHttp.Request) *commonHttp.Response {
 
 	resData := testResponseType{
 		IncomingBody: body.String(),
-		HttpData:     request.HttpData,
+		Method:       request.Method,
+		Path:         request.Path,
+		Headers:      request.Headers,
+		Source:       request.Source,
 		KulyData:     request.KulyData,
 		ServiceData:  request.ServiceData,
 	}
@@ -61,8 +67,8 @@ func rootHandler(request *commonHttp.Request) *commonHttp.Response {
 	}
 
 	resp := commonHttp.NewResponse()
-	resp.Headers["X-MyHeader"] = "I set this! :)"
-	resp.Headers["Content-Type"] = "application/json"
+	resp.Headers.Set("X-MyHeader", "I set this! :)")
+	resp.Headers.Set("Content-Type", "application/json")
 	resp.Status = 200
 	resp.Body = commonHttp.NewBody()
 	resp.Body.Write(bodyJson)
