@@ -10,7 +10,7 @@ import (
 var logger = logging.GetForComponent("service")
 
 func main() {
-	srv := commonHttp.NewServer(30006, testHandler)
+	srv := commonHttp.NewServer(30000, testHandler)
 
 	err := srv.Serve()
 
