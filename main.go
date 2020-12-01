@@ -22,6 +22,7 @@ func main() {
 type testResponseType struct {
 	IncomingBody string                            `json:"incomingBody"`
 	Method       string                            `json:"method"`
+	Host         string                            `json:"host"`
 	Path         string                            `json:"path"`
 	Headers      commonHttp.Headers                `json:"headers"`
 	Source       string                            `json:"source"`
@@ -51,6 +52,7 @@ func rootHandler(request *commonHttp.Request) *commonHttp.Response {
 	resData := testResponseType{
 		IncomingBody: body.String(),
 		Method:       request.Method,
+		Host:         request.Host,
 		Path:         request.Path,
 		Headers:      request.Headers,
 		Source:       request.Source,
