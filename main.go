@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	commonHttp "github.com/kulycloud/common/http"
 	"github.com/kulycloud/common/logging"
@@ -10,7 +11,10 @@ import (
 var logger = logging.GetForComponent("service")
 
 func main() {
-	srv := commonHttp.NewServer(30000, testHandler)
+	srv, err := commonHttp.NewServer(30000, testHandler)
+	if err != nil {
+		logger.Panicw("could not create server", "error", err)
+	}
 
 	err := srv.Serve()
 
@@ -30,15 +34,15 @@ type testResponseType struct {
 	ServiceData  map[string]string                 `json:"serviceData"`
 }
 
-func testHandler(request *commonHttp.Request) *commonHttp.Response {
+func testHandler(ctx context.Context, request *commonHttp.Request) *commonHttp.Response {
 	if request.Path == "/echo" {
-		return echoHandler(request)
+		return echoHandler(ctx, request)
 	} else {
-		return rootHandler(request)
+		return rootHandler(ctx, request)
 	}
 }
 
-func echoHandler(request *commonHttp.Request) *commonHttp.Response {
+func echoHandler(ctx context.Context, request *commonHttp.Request) *commonHttp.Response {
 	res := commonHttp.NewResponse()
 	res.Headers.Set("Content-Type", request.Headers.Get("Content-Type"))
 	res.Body = request.Body
@@ -46,7 +50,7 @@ func echoHandler(request *commonHttp.Request) *commonHttp.Response {
 	return res
 }
 
-func rootHandler(request *commonHttp.Request) *commonHttp.Response {
+func rootHandler(ctx context.Context, request *commonHttp.Request) *commonHttp.Response {
 	body := request.Body.ReadAll()
 
 	resData := testResponseType{
