@@ -16,7 +16,7 @@ func main() {
 		logger.Panicw("could not create server", "error", err)
 	}
 
-	err := srv.Serve()
+	err = srv.Serve()
 
 	if err != nil {
 		logger.Panicw("could not serve", "error", err)
