@@ -43,10 +43,10 @@ func testHandler(ctx context.Context, request *commonHttp.Request) *commonHttp.R
 }
 
 func echoHandler(ctx context.Context, request *commonHttp.Request) *commonHttp.Response {
+	logger.Debug("got request with id ", request.KulyData.RequestUid)
 	res := commonHttp.NewResponse()
 	res.Headers.Set("Content-Type", request.Headers.Get("Content-Type"))
 	res.Body = request.Body
-
 	return res
 }
 
